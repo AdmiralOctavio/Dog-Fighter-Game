@@ -26,9 +26,10 @@ shipDir = []
 enemyDir = []
 missileDir = []
 F_missilesArray = []
-E_missileArray = []
+E_missilesArray = []
 explosions = []
-mwait = 0
+Emwait = 0
+Fmwait = 0
 speed, missileSpeed = 3, 10
 running = True
 F_heading, E_heading = 0, 180
@@ -36,14 +37,13 @@ isExploding = False
 timeafterexplosion = 1
 missiletemp = 0
 
-
-
 class Missile:
-    def __init__(self, posx, posy, heading, timer):
+    def __init__(self, posx, posy, heading, timer, origin):
         self.posx = posx
         self.posy = posy
         self.heading = heading
         self.timer = timer
+        self.origin = origin
     
     def update(self):
         self.posx += missileSpeed*numpy.cos(numpy.radians(self.heading))
@@ -128,11 +128,17 @@ while running:
     E_positiony %= height
 
 #Missiles
-    if pg.key.get_pressed()[pg.K_s] and mwait > 100:
-        mwait = 0
-        timer = 0
-        m = Missile(F_positionx, F_positiony, F_heading, timer)
+    if pg.key.get_pressed()[pg.K_s] and Fmwait > 100: #Friendly Missile Launch
+        Fmwait = 0
+        Ftimer = 0
+        m = Missile(F_positionx, F_positiony, F_heading, Ftimer, "Blue")
         F_missilesArray.append(m)
+
+    if pg.key.get_pressed()[pg.K_DOWN] and Emwait > 100: #Enemy Missile Launch
+        Emwait = 0
+        Etimer = 0
+        m = Missile(E_positionx, E_positiony, E_heading, Etimer, "Red")
+        E_missilesArray.append(m)
 
     pg.draw.rect(screen, black, scrrect)
     screen.blit(ship, shiprect)
@@ -144,6 +150,17 @@ while running:
 
         if missile.timer > 100:
             F_missilesArray.pop(0)
+            isExploding = True
+            missiletemp = 1
+            xpos = missile.posx
+            ypos = missile.posy
+
+    for missile in E_missilesArray:
+        missile.render(screen)
+        missile.update()
+
+        if missile.timer > 100:
+            E_missilesArray.pop(0)
             isExploding = True
             missiletemp = 1
             xpos = missile.posx
@@ -165,9 +182,9 @@ while running:
         isExploding = False
         missiletemp = 0
 
-
     print(missiletemp)
-    mwait += 1
+    Emwait += 1
+    Fmwait += 1
     pg.display.flip() 
     if keys[pg.K_TAB]:
             running = False    
