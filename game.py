@@ -140,8 +140,11 @@ while running:
         m = Missile(E_positionx, E_positiony, E_heading, Etimer, "Red")
         E_missilesArray.append(m)
 
-    text = font.render(str(Fscore) + ' | ' + str(Escore), True, white, black)
-
+    text = font.render(str(Fscore/2) + ' | ' + str(Escore/2), True, white, black)
+    if Fscore % 1 != 0:
+        Fscore += 0.5
+    if Escore %1 != 0:
+        Escore += 0.5
     textRect = text.get_rect()
     textRect.center = (1920/2 , 900)
 
@@ -165,7 +168,7 @@ while running:
             EisDead = True
 
     if EisDead == True:
-        Fscore += 1
+        Fscore += 0.5
         EisDead = False
         explodeSound.play()
         speed = 0
@@ -186,7 +189,7 @@ while running:
             FisDead = True
 
     if FisDead == True:
-        Escore += 1
+        Escore += 0.5
         FisDead = False
         explodeSound.play()
         F_heading, E_heading, 0, 180
@@ -222,7 +225,6 @@ while running:
 
     Emwait += 1
     Fmwait += 1
-
 
     pg.display.flip() 
     if keys[pg.K_TAB]:
