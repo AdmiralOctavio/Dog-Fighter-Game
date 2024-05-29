@@ -17,6 +17,7 @@ enemy = pg.image.load('Enemy.png')
 enemy = pg.transform.scale(enemy, (128, 96))
 missileText = pg.image.load('missile.png')
 missileText = pg.transform.scale(missileText, (128, 96))
+bg = pg.transform.scale(pg.image.load('background.png'), (1920, 1080))
 
 explodeSound = pg.mixer.Sound('explosion.wav')
 music =[]
@@ -63,12 +64,12 @@ class Missile:
         screen.blit(missileText, missilerect)
 
 def turnLeft(heading):
-    heading -= round(180/refreshRate)
+    heading -= round(145/refreshRate)
     if heading < 0: heading += 360
     return heading
 
 def turnRight(heading):
-    heading += round(180/refreshRate)
+    heading += round(145/refreshRate)
     if heading > 359: heading -= 360
     return heading
 
@@ -148,6 +149,7 @@ while running:
     textRect = text.get_rect()
     textRect.center = (1920/2 , 900)
 
+    #screen.blit(bg, (0, 0))
     pg.draw.rect(screen, black, scrrect)
     screen.blit(ship, shiprect)
     screen.blit(enemy, enemyrect)
