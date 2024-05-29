@@ -1,6 +1,6 @@
 import pygame as pg
 import numpy
-import time
+import random
 
 pg.init()
 width, height = 1920, 1080
@@ -9,7 +9,7 @@ screen = pg.display.set_mode(resolution)
 scrrect = screen.get_rect()
 black = (0, 0, 0)
 white = (255, 255, 255)
-refreshRate = 144 #Hz
+refreshRate = 60 #Hz
 
 ship = pg.image.load('Player.png')
 ship = pg.transform.scale(ship, (128, 96))
@@ -19,6 +19,10 @@ missileText = pg.image.load('missile.png')
 missileText = pg.transform.scale(missileText, (128, 96))
 
 explodeSound = pg.mixer.Sound('explosion.wav')
+music =[]
+for i in range(2): music.append(pg.mixer.Sound('music' + str(i+1) + '.mp3'))
+song = music[random.randint(0,1)]
+song.play()
 
 shiprect, enemyrect, missilerect = ship.get_rect(), enemy.get_rect(), missileText.get_rect()
 shiprect.centerx, enemyrect.centerx = 250, 500
@@ -29,7 +33,7 @@ F_missilesArray = []
 E_missilesArray = []
 explosions = []
 Emwait, Fmwait = 0, 0
-speed, missileSpeed = 3, 10
+speed, missileSpeed = 8, 24
 Fscore, Escore = 0, 0
 running = True
 F_heading, E_heading = 0, 180
@@ -38,7 +42,6 @@ timeafterexplosion, missiletemp = 1, 0
 FisDead, EisDead = False, False
 wait = -0
 font = pg.font.Font('freesansbold.ttf', 32)
-
 
 class Missile:
     def __init__(self, posx, posy, heading, timer, origin):
@@ -60,12 +63,12 @@ class Missile:
         screen.blit(missileText, missilerect)
 
 def turnLeft(heading):
-    heading -= round(90/refreshRate)
+    heading -= round(180/refreshRate)
     if heading < 0: heading += 360
     return heading
 
 def turnRight(heading):
-    heading += round(90/refreshRate)
+    heading += round(180/refreshRate)
     if heading > 359: heading -= 360
     return heading
 
@@ -102,12 +105,12 @@ while running:
          ship = shipDir[F_heading]
 #Red Player Rotation
     if keys[pg.K_RIGHT]:
-         E_heading = turnRight(E_heading)
+         E_heading = turnLeft(E_heading)
          enemyrect = enemy.get_rect()
          enemy = enemyDir[E_heading]
 
     elif keys[pg.K_LEFT]:
-         E_heading = turnLeft(E_heading)
+         E_heading = turnRight(E_heading)
          enemyrect = enemy.get_rect()
          enemy = enemyDir[E_heading]
 #Movement
@@ -127,12 +130,12 @@ while running:
     E_positiony %= height
 
 #Missiles
-    if pg.key.get_pressed()[pg.K_s] and Fmwait > 100: #Friendly Missile Launch
+    if pg.key.get_pressed()[pg.K_s] and Fmwait > 60: #Friendly Missile Launch
         Fmwait, Ftimer = 0, 0
         m = Missile(F_positionx, F_positiony, F_heading, Ftimer, "Blue")
         F_missilesArray.append(m)
 
-    if pg.key.get_pressed()[pg.K_DOWN] and Emwait > 100: #Enemy Missile Launch
+    if pg.key.get_pressed()[pg.K_DOWN] and Emwait > 60: #Enemy Missile Launch
         Emwait, Etimer = 0, 0
         m = Missile(E_positionx, E_positiony, E_heading, Etimer, "Red")
         E_missilesArray.append(m)
@@ -152,13 +155,13 @@ while running:
         missile.render(screen)
         missile.update()
 
-        if missile.timer > 100:
+        if missile.timer > 60:
             F_missilesArray.pop(0)
             isExploding, missiletemp = True, 1
             xpos, ypos = missile.posx, missile.posy
         
         if abs(E_positionx - missile.posx) < 40 and abs(E_positiony - missile.posy) < 40:
-            missile.timer = 100
+            missile.timer = 61
             EisDead = True
 
     if EisDead == True:
@@ -173,13 +176,13 @@ while running:
         missile.render(screen)
         missile.update()
 
-        if missile.timer > 100:
+        if missile.timer > 60:
             E_missilesArray.pop(0)
             isExploding, missiletemp = True, 1
             xpos, ypos = missile.posx, missile.posy
 
         if abs(F_positionx - missile.posx) < 40 and abs(F_positiony - missile.posy) < 40:
-            missile.timer = 100
+            missile.timer = 61
             FisDead = True
 
     if FisDead == True:
@@ -201,7 +204,7 @@ while running:
         F_positionx, F_positiony = width-400, 540
 
     elif wait == 0:
-        speed = 3
+        speed = 8
 
 #Missile Destruction Animation
     if isExploding and missiletemp <5:
@@ -211,7 +214,7 @@ while running:
         explosionrect.centerx, explosionrect.centery = xpos, ypos
         screen.blit(exp, explosionrect)
 
-    if timeafterexplosion % 16 == 0:
+    if timeafterexplosion % 10 == 0:
         missiletemp += 1
         
     elif missiletemp == len(explosions):
