@@ -7,7 +7,8 @@ width, height = 1920, 1080
 resolution = (width,height)
 screen = pg.display.set_mode(resolution)
 scrrect = screen.get_rect()
-black =(0, 0, 0)
+black = (0, 0, 0)
+white = (255, 255, 255)
 refreshRate = 144 #Hz
 
 ship = pg.image.load('Player.png')
@@ -16,6 +17,8 @@ enemy = pg.image.load('Enemy.png')
 enemy = pg.transform.scale(enemy, (128, 96))
 missileText = pg.image.load('missile.png')
 missileText = pg.transform.scale(missileText, (128, 96))
+
+explodeSound = pg.mixer.Sound('explosion.wav')
 
 shiprect, enemyrect, missilerect = ship.get_rect(), enemy.get_rect(), missileText.get_rect()
 shiprect.centerx, enemyrect.centerx = 250, 500
@@ -32,6 +35,10 @@ running = True
 F_heading, E_heading = 0, 180
 isExploding = False
 timeafterexplosion, missiletemp = 1, 0
+FisDead, EisDead = False, False
+wait = -0
+font = pg.font.Font('freesansbold.ttf', 32)
+
 
 class Missile:
     def __init__(self, posx, posy, heading, timer, origin):
@@ -130,9 +137,16 @@ while running:
         m = Missile(E_positionx, E_positiony, E_heading, Etimer, "Red")
         E_missilesArray.append(m)
 
+    text = font.render(str(Fscore) + ' | ' + str(Escore), True, white, black)
+
+    textRect = text.get_rect()
+    textRect.center = (1920/2 , 900)
+
     pg.draw.rect(screen, black, scrrect)
     screen.blit(ship, shiprect)
     screen.blit(enemy, enemyrect)
+    screen.blit(text, textRect)
+
 #Looping through Friendly missile array 
     for missile in F_missilesArray:
         missile.render(screen)
@@ -147,6 +161,12 @@ while running:
             missile.timer = 100
             EisDead = True
 
+    if EisDead == True:
+        Fscore += 1
+        EisDead = False
+        explodeSound.play()
+        speed = 0
+        wait = 1
         
 #Looping through Enemy missile array
     for missile in E_missilesArray:
@@ -165,6 +185,23 @@ while running:
     if FisDead == True:
         Escore += 1
         FisDead = False
+        explodeSound.play()
+        F_heading, E_heading, 0, 180
+        wait = 1
+
+    if 0 < wait < 200:
+        wait += 1
+        speed = 0
+        E_heading, F_heading = 180, 0
+        enemy, ship = enemyDir[180], shipDir[0]
+
+    elif wait > 199:
+        wait = 0
+        E_positionx, E_positiony = 400, 540
+        F_positionx, F_positiony = width-400, 540
+
+    elif wait == 0:
+        speed = 3
 
 #Missile Destruction Animation
     if isExploding and missiletemp <5:
@@ -182,6 +219,8 @@ while running:
 
     Emwait += 1
     Fmwait += 1
+
+
     pg.display.flip() 
     if keys[pg.K_TAB]:
             running = False    
