@@ -9,7 +9,7 @@ screen = pg.display.set_mode(resolution)
 scrrect = screen.get_rect()
 black = (0, 0, 0)
 white = (255, 255, 255)
-refreshRate = 60 #Hz
+refreshRate = 144 #Hz
 
 ship = pg.image.load('Player.png')
 ship = pg.transform.scale(ship, (128, 96))
@@ -34,7 +34,7 @@ F_missilesArray = []
 E_missilesArray = []
 explosions = []
 Emwait, Fmwait = 0, 0
-speed, missileSpeed = 8, 24
+speed, missileSpeed = 8, 15
 Fscore, Escore = 0, 0
 running = True
 F_heading, E_heading = 0, 180
@@ -64,12 +64,12 @@ class Missile:
         screen.blit(missileText, missilerect)
 
 def turnLeft(heading):
-    heading -= round(145/refreshRate)
+    heading -= round(180/refreshRate)
     if heading < 0: heading += 360
     return heading
 
 def turnRight(heading):
-    heading += round(145/refreshRate)
+    heading += round(180/refreshRate)
     if heading > 359: heading -= 360
     return heading
 
@@ -142,6 +142,7 @@ while running:
         E_missilesArray.append(m)
 
     text = font.render(str(Fscore/2) + ' | ' + str(Escore/2), True, white, black)
+    
     if Fscore % 1 != 0:
         Fscore += 0.5
     if Escore %1 != 0:
@@ -209,7 +210,7 @@ while running:
         F_positionx, F_positiony = width-400, 540
 
     elif wait == 0:
-        speed = 8
+        speed = 4
 
 #Missile Destruction Animation
     if isExploding and missiletemp <5:
