@@ -11,19 +11,21 @@ black = (0, 0, 0)
 white = (255, 255, 255)
 refreshRate = 144 #Hz
 
-ship = pg.image.load('Player1.png')
+explodeSound = pg.mixer.Sound('explosion.wav')
+music =[]
+for i in range(4): music.append(pg.mixer.Sound('music' + str(i) + '.mp3'))
+songIndex = random.randint(0,3)
+song = music[songIndex]
+song.play()
+
+ship = pg.image.load('Player' + str(songIndex) + '.png')
 ship = pg.transform.scale(ship, (128, 96))
-enemy = pg.image.load('Enemy1.png')
+enemy = pg.image.load('Enemy' + str(songIndex) + '.png')
 enemy = pg.transform.scale(enemy, (128, 96))
 missileText = pg.image.load('missile.png')
 missileText = pg.transform.scale(missileText, (128, 96))
 bg = pg.transform.scale(pg.image.load('background.png'), (1920, 1080))
 
-explodeSound = pg.mixer.Sound('explosion.wav')
-music =[]
-for i in range(3): music.append(pg.mixer.Sound('music' + str(i+1) + '.mp3'))
-song = music[random.randint(0,2)]
-song.play()
 
 shiprect, enemyrect, missilerect = ship.get_rect(), enemy.get_rect(), missileText.get_rect()
 shiprect.centerx, enemyrect.centerx = 250, 500
@@ -136,7 +138,7 @@ while running:
         m = Missile(F_positionx, F_positiony, F_heading, Ftimer, "Blue")
         F_missilesArray.append(m)
 
-    if pg.key.get_pressed()[pg.K_DOWN] and Emwait > 35: #Enemy Missile Launch
+    if pg.key.get_pressed()[pg.K_DOWN] and Emwait > 35 and songIndex != 3: #Enemy Missile Launch
         Emwait, Etimer = 0, 0
         m = Missile(E_positionx, E_positiony, E_heading, Etimer, "Red")
         E_missilesArray.append(m)
